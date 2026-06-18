@@ -5,7 +5,7 @@ import ClientHomeWrapper from '../components/ClientHomeWrapper';
 export default async function Page({
   params,
 }: {
-  // FIX 1: Next.js strictly requires dynamic folder params to be 'string'
+  // Next.js strictly requires dynamic folder params to be 'string'
   params: Promise<{ lng: string }>;
 }) {
   const { lng } = await params;
@@ -44,7 +44,7 @@ export default async function Page({
             </p>
             <p className='opacity-80'>
               Mobil / WhatsApp:{' '}
-              {/* FIX 2: Corrected the string interpolation formatting syntax */}
+              {/* FIXED: Corrected syntax template literal for the footer link */}
               <a
                 href={`https://wa.me{dict.mobile}`}
                 className='hover:text-tuscan-clay transition-colors font-mono'

@@ -26,7 +26,6 @@ export default function ClientHomeWrapper({
   return (
     <>
       {/* Header */}
-      {/* ADDED 'transform-gpu' to force mobile browsers to recalculate touch zones correctly */}
       <header className='border-b border-tuscan-olive/10 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-50 transform-gpu'>
         <span className='font-serif text-2xl font-bold text-tuscan-olive tracking-tight'>
           {dict.brand}
@@ -55,7 +54,6 @@ export default function ClientHomeWrapper({
               EN
             </Link>
           </div>
-          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
             type='button'
             onClick={() => setIsBookingOpen(true)}
@@ -78,7 +76,6 @@ export default function ClientHomeWrapper({
           {dict.heroSubtitle}
         </p>
         <div className='flex flex-wrap justify-center gap-4'>
-          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
             type='button'
             onClick={scrollToMenu}
@@ -86,7 +83,6 @@ export default function ClientHomeWrapper({
           >
             {dict.ctaMenu}
           </button>
-          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
             type='button'
             onClick={() => setIsBookingOpen(true)}

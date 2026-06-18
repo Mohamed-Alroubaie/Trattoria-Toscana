@@ -90,13 +90,10 @@ export default function BookingModal({
 
   if (!isOpen) return null;
 
-  // 3. Close the modal on standard submission events
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onClose();
-  };
+  // Determine form input validity state flag
+  const isFormInvalid = !name || !date || !time || isMonday || dateError;
 
-  // 4. Generate dynamic WhatsApp link text template
+  // 3. Generate dynamic WhatsApp link text template safely
   const formattedDate = date ? date.split('-').reverse().join('.') : '';
   const messageTemplate = `Salve Trattoria Toscana,
 Buon giorno! Ich möchte gerne einen Tisch reservieren / I would like to request a table:
@@ -109,22 +106,29 @@ Buon giorno! Ich möchte gerne einen Tisch reservieren / I would like to request
 Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
 
   const restaurantPhoneNumber = '491725425856';
-  const whatsAppLink = `https://wa.me{restaurantPhoneNumber}?text=${encodeURIComponent(messageTemplate)}`;
+  const whatsAppLink = `https://wa.me/${restaurantPhoneNumber}?text=${encodeURIComponent(messageTemplate)}`;
 
-  // Determine form input validity state flag
-  const isFormInvalid = !name || !date || !time || isMonday || dateError;
+  // 4. Handle standard form submission actions
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isFormInvalid) return;
+
+    // Safely execute cross-platform anchor click pipeline
+    const anchor = document.createElement('a');
+    anchor.href = whatsAppLink;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+
+    onClose();
+  };
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200'>
-      {/* Added -webkit-overflow-scrolling to help mobile safari touch coordinates align */}
       <div className='bg-tuscan-ivory border border-tuscan-olive/20 rounded-xl p-6 max-w-md w-full shadow-xl animate-in zoom-in-95 duration-200 overflow-y-auto max-h-[90vh] supports-touch:overflow-scrolling-touch'>
-        {/* FIX FOR PHONES: The form action is placed directly inside the native HTML layout element */}
-        <form
-          action={isFormInvalid ? undefined : whatsAppLink}
-          target='_blank'
-          onSubmit={handleSubmit}
-          className='space-y-4'
-        >
+        <form onSubmit={handleSubmit} className='space-y-4'>
           <div>
             <h3 className='font-serif text-2xl font-bold text-tuscan-espresso'>
               {dict.bookingTitle}
@@ -230,7 +234,6 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
               {dict.btnCancel}
             </button>
 
-            {/* FIXED FOR SMARTPHONES: Returning to a true native button element triggers the HTML form action pipeline smoothly on mobile devices */}
             <button
               type='submit'
               disabled={isFormInvalid}
