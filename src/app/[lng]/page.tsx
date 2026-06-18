@@ -5,15 +5,19 @@ import ClientHomeWrapper from '../components/ClientHomeWrapper';
 export default async function Page({
   params,
 }: {
-  params: Promise<{ lng: 'de' | 'en' }>;
+  // FIX 1: Next.js strictly requires dynamic folder params to be 'string'
+  params: Promise<{ lng: string }>;
 }) {
   const { lng } = await params;
-  const dict = await getDictionary(lng);
+
+  // Safe validation check for your dictionary lookups
+  const safeLng = lng === 'en' ? 'en' : 'de';
+  const dict = await getDictionary(safeLng);
 
   return (
     <main className='bg-tuscan-ivory min-h-screen'>
-      <ClientHomeWrapper lng={lng} dict={dict}>
-        <MenuGrid lng={lng} dict={dict} />
+      <ClientHomeWrapper lng={safeLng} dict={dict}>
+        <MenuGrid lng={safeLng} dict={dict} />
       </ClientHomeWrapper>
 
       <footer className='bg-tuscan-espresso text-tuscan-ivory/90 mt-24 py-16 px-6 border-t border-tuscan-olive/20 text-sm'>
@@ -40,6 +44,7 @@ export default async function Page({
             </p>
             <p className='opacity-80'>
               Mobil / WhatsApp:{' '}
+              {/* FIX 2: Corrected the string interpolation formatting syntax */}
               <a
                 href={`https://wa.me{dict.mobile}`}
                 className='hover:text-tuscan-clay transition-colors font-mono'

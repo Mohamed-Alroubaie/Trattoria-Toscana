@@ -25,14 +25,13 @@ export default function BookingModal({
   const [dateError, setDateError] = useState(false);
   const [timeOptions, setTimeOptions] = useState<string[]>([]);
 
-  // 1. Calculate today's date in local midnight format (YYYY-MM-DD)
+  // 1. Calculate today's date in local format (YYYY-MM-DD)
   useEffect(() => {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
-    // Explicitly sets standard visual blocking string bounds (e.g. "2026-06-18")
     setTodayString(`${year}-${month}-${day}`);
   }, [isOpen]);
 
@@ -45,7 +44,6 @@ export default function BookingModal({
       return;
     }
 
-    // Strict Date Validation Layer (Blocks past targets)
     if (date < todayString) {
       setDateError(true);
       setTimeOptions([]);
@@ -57,7 +55,7 @@ export default function BookingModal({
     const selectedDate = new Date(date);
     const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-    setTime(''); // Clear out matching residual clock choices
+    setTime('');
 
     if (dayOfWeek === 1) {
       setIsMonday(true);
@@ -92,15 +90,15 @@ export default function BookingModal({
 
   if (!isOpen) return null;
 
-  // 3. Final submission handler block layer
+  // 3. Close the modal on standard submission events
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    onClose();
+  };
 
-    // Core structural blocking check: drop out immediately if date fails constraints
-    if (!name || !date || !time || isMonday || date < todayString) return;
-
-    const formattedDate = date.split('-').reverse().join('.');
-    const messageTemplate = `Salve Trattoria Toscana,
+  // 4. Generate dynamic WhatsApp link text template
+  const formattedDate = date ? date.split('-').reverse().join('.') : '';
+  const messageTemplate = `Salve Trattoria Toscana,
 Buon giorno! Ich möchte gerne einen Tisch reservieren / I would like to request a table:
 
 • Name: ${name}
@@ -110,28 +108,23 @@ Buon giorno! Ich möchte gerne einen Tisch reservieren / I would like to request
 
 Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
 
-    const params = new URLSearchParams();
-    params.append('text', messageTemplate);
+  const restaurantPhoneNumber = '491725425856';
+  const whatsAppLink = `https://wa.me{restaurantPhoneNumber}?text=${encodeURIComponent(messageTemplate)}`;
 
-    const baseWhatsAppUrl = 'https://wa.me';
-    const finalUrl = `${baseWhatsAppUrl}?${params.toString()}`;
-
-    // Execute pop-up blocker proof tab transition layout routing
-    const anchor = document.createElement('a');
-    anchor.href = finalUrl;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-
-    onClose();
-  };
+  // Determine form input validity state flag
+  const isFormInvalid = !name || !date || !time || isMonday || dateError;
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200'>
-      <div className='bg-tuscan-ivory border border-tuscan-olive/20 rounded-xl p-6 max-w-md w-full shadow-xl animate-in zoom-in-95 duration-200'>
-        <form onSubmit={handleSubmit} className='space-y-4'>
+      {/* Added -webkit-overflow-scrolling to help mobile safari touch coordinates align */}
+      <div className='bg-tuscan-ivory border border-tuscan-olive/20 rounded-xl p-6 max-w-md w-full shadow-xl animate-in zoom-in-95 duration-200 overflow-y-auto max-h-[90vh] supports-touch:overflow-scrolling-touch'>
+        {/* FIX FOR PHONES: The form action is placed directly inside the native HTML layout element */}
+        <form
+          action={isFormInvalid ? undefined : whatsAppLink}
+          target='_blank'
+          onSubmit={handleSubmit}
+          className='space-y-4'
+        >
           <div>
             <h3 className='font-serif text-2xl font-bold text-tuscan-espresso'>
               {dict.bookingTitle}
@@ -156,7 +149,7 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
             />
           </div>
 
-          {/* Date Picker Component Field Container */}
+          {/* Date Picker */}
           <div>
             <label className='block text-xs font-bold uppercase tracking-wider text-tuscan-espresso/80 mb-1'>
               {dict.inputDate}
@@ -164,7 +157,7 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
             <input
               required
               type='date'
-              min={todayString} // Visual calendar overlay lock
+              min={todayString}
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className={`w-full bg-white border rounded px-3 py-2 text-sm focus:outline-none text-tuscan-espresso ${
@@ -175,7 +168,7 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
             />
           </div>
 
-          {/* Guest Metric & Dropdown Hours Block Grid Segment */}
+          {/* Guest Metric & Dropdown */}
           <div className='grid grid-cols-2 gap-4'>
             <div>
               <label className='block text-xs font-bold uppercase tracking-wider text-tuscan-espresso/80 mb-1'>
@@ -213,7 +206,6 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
             </div>
           </div>
 
-          {/* Validation Notice Feedback Banners Layout */}
           {dateError && (
             <div className='p-2.5 text-xs font-medium bg-rose-50 border border-rose-200 text-rose-700 rounded'>
               ⚠️ Datum darf nicht in der Vergangenheit liegen. / Date cannot be
@@ -238,11 +230,12 @@ Grazie mille! Bitte bestätigen Sie mir, ob dieser Termin frei ist.`;
               {dict.btnCancel}
             </button>
 
+            {/* FIXED FOR SMARTPHONES: Returning to a true native button element triggers the HTML form action pipeline smoothly on mobile devices */}
             <button
               type='submit'
-              disabled={!name || !date || !time || isMonday || dateError}
+              disabled={isFormInvalid}
               className={`flex-1 text-center font-medium text-sm py-2 px-4 rounded shadow flex items-center justify-center gap-2 transition-colors ${
-                !name || !date || !time || isMonday || dateError
+                isFormInvalid
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
               }`}

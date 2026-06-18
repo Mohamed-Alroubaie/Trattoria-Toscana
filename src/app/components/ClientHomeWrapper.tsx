@@ -26,7 +26,8 @@ export default function ClientHomeWrapper({
   return (
     <>
       {/* Header */}
-      <header className='border-b border-tuscan-olive/10 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-50'>
+      {/* ADDED 'transform-gpu' to force mobile browsers to recalculate touch zones correctly */}
+      <header className='border-b border-tuscan-olive/10 px-6 py-4 flex justify-between items-center bg-white/80 backdrop-blur-md sticky top-0 z-50 transform-gpu'>
         <span className='font-serif text-2xl font-bold text-tuscan-olive tracking-tight'>
           {dict.brand}
         </span>
@@ -54,9 +55,11 @@ export default function ClientHomeWrapper({
               EN
             </Link>
           </div>
+          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
+            type='button'
             onClick={() => setIsBookingOpen(true)}
-            className='bg-tuscan-clay text-white px-5 py-2 rounded font-medium shadow-sm hover:bg-tuscan-clay/90 transition-colors cursor-pointer'
+            className='bg-tuscan-clay text-white px-5 py-2 rounded font-medium shadow-sm hover:bg-tuscan-clay/90 transition-colors cursor-pointer touch-manipulation'
           >
             {dict.ctaBook}
           </button>
@@ -75,15 +78,19 @@ export default function ClientHomeWrapper({
           {dict.heroSubtitle}
         </p>
         <div className='flex flex-wrap justify-center gap-4'>
+          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
+            type='button'
             onClick={scrollToMenu}
-            className='bg-tuscan-olive text-white px-6 py-3 rounded-md font-medium shadow-md hover:bg-tuscan-olive/90 transition-all cursor-pointer'
+            className='bg-tuscan-olive text-white px-6 py-3 rounded-md font-medium shadow-md hover:bg-tuscan-olive/90 transition-all cursor-pointer touch-manipulation'
           >
             {dict.ctaMenu}
           </button>
+          {/* FIX FOR PHONES: Explicitly added type='button' */}
           <button
+            type='button'
             onClick={() => setIsBookingOpen(true)}
-            className='bg-white border border-tuscan-olive/30 text-tuscan-espresso px-6 py-3 rounded-md font-medium shadow-sm hover:bg-black/5 transition-all cursor-pointer'
+            className='bg-white border border-tuscan-olive/30 text-tuscan-espresso px-6 py-3 rounded-md font-medium shadow-sm hover:bg-black/5 transition-all cursor-pointer touch-manipulation'
           >
             {dict.ctaBook}
           </button>
