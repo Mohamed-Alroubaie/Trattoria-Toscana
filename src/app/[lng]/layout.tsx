@@ -9,12 +9,16 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ lng: 'de' | 'en' }>;
+  // CHANGED: Next.js needs this to be string instead of 'de' | 'en'
+  params: Promise<{ lng: string }>;
 }) {
   const { lng } = await params;
 
+  // SAFE GUARD: Ensures the HTML tag only ever gets 'de' or 'en'
+  const validLng = lng === 'en' ? 'en' : 'de';
+
   return (
-    <html lang={lng}>
+    <html lang={validLng}>
       <body className='bg-tuscan-ivory text-tuscan-espresso font-sans antialiased'>
         {children}
       </body>
